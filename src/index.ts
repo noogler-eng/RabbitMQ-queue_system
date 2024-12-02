@@ -47,22 +47,22 @@
 //             - here x is mechanism who used to fanout (x is exchange)
 //             - we can set up mechanism here to how message going (patterns)
 
-import express from "express";
-import amqp from "amqplib";
+import send_message_to_queue from "./services/producer";
+import get_message_from_queue from "./services/consumer";
 
-const app = express();
+const testing_for_message = async (queue_name: string, message: string) => {
+  try {
+    await send_message_to_queue(queue_name, message);
+    await get_message_from_queue(queue_name);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, async () => {
-  console.log(`server listening at: http://localhost:${PORT}`);
-  amqp.connect("amqp://localhost", function (error0: any, connection: any) {
-    if (error0) {
-      throw error0;
-    }
-    connection.createChannel(function (error1: any, channel: any) {
-      if (error1) {
-        throw error1;
-      }
-    });
-  });
-});
+testing_for_message(
+  "problems",
+  JSON.stringify({
+    id: 1,
+    statement: "How are you",
+  })
+);
